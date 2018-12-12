@@ -1,0 +1,30 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "cephfs-provisioner.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "cephfs-provisioner.fullname" . }}
+    helm.sh/chart: {{ include "cephfs-provisioner.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["services"]
+    resourceNames: ["kube-dns","coredns"]
+    verbs: ["list", "get"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "delete"]

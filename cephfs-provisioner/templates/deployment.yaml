@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ include "cephfs-provisioner.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "cephfs-provisioner.fullname" . }}
+    helm.sh/chart: {{ include "cephfs-provisioner.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "cephfs-provisioner.fullname" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        env:
+        - name: PROVISIONER_NAME
+          value: ceph.com/cephfs
+        command:
+        - "/usr/local/bin/cephfs-provisioner"
+        args:
+        - "-id=cephfs-provisioner-1"
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+      serviceAccount: {{ include "cephfs-provisioner.fullname" . }}
